@@ -11,6 +11,23 @@ Builds the optimized Keycloak image for the homelab with the
 | Base image | Keycloak 26.x pinned by digest in the builder's `Dockerfile` |
 | Consumer | Keycloak Operator CR in `multi-k8s-infra` (`eggenberg-talos-cluster-1`) |
 
+## Themes
+
+`themes/` is copied into the image (one directory per theme). `homelab` is a
+login theme on top of `keycloak.v2`: it adds `css/homelab.css` and a logo and
+leaves templates and messages to the parent. Select it per realm
+(`login_theme = "homelab"` in `homelab/terraform/keycloak`).
+
+Try a change locally without a build (theme cache off, reload to see edits):
+
+```sh
+docker run --rm -p 8080:8080 -v "$PWD/themes/homelab:/opt/keycloak/themes/homelab:ro" \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.2 start-dev --spi-theme--cache-themes=false
+```
+
+## Build
+
 `.github/workflows/build.yml` builds on every pull request and publishes on
 pushes to `main` (or a manual run). The builder is pinned by commit SHA;
 Renovate bumps it, and with it the Keycloak version.
