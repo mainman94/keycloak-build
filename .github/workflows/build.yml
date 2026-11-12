@@ -83,6 +83,7 @@ jobs:
           IMAGE: ${{ steps.keycloak.outputs.image }}
           DIGEST: ${{ steps.keycloak.outputs.digest }}
           BASE_IMAGE: ${{ steps.keycloak.outputs.base-image }}
-        run: |
+        run: |-
+          # shellcheck disable=SC2016 # backticks are literal Markdown
           printf '### Result\n\n| | |\n|---|---|\n| Image | `%s` |\n| Digest | `%s` |\n| Base | `%s` |\n' \
             "$IMAGE" "$DIGEST" "$BASE_IMAGE" >> "$GITHUB_STEP_SUMMARY"
