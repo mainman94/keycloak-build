@@ -1,0 +1,46 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  keycloak:
+    name: keycloak
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      # Optimized image for the homelab Keycloak Operator CR
+      # (multi-k8s-infra, eggenberg-talos-cluster-1): PostgreSQL, health and
+      # metrics are baked in; amd64 matches the Talos nodes. Pull requests only
+      # build, pushes to main publish ghcr.io/mainman94/keycloak:<sha>.
+      - name: Build Keycloak image
+        id: keycloak
+        uses: FullStackS-GmbH/keycloak-image-builder@ebb48a60fd0a560d72eddaa95cfea7e7b6480d46 # feat/github-action
+        with:
+          image-name: ghcr.io/${{ github.repository_owner }}/keycloak
+          image-tag: ${{ github.sha }}
+          db: postgres
+          health-enabled: 'true'
+          metrics-enabled: 'true'
+          platforms: linux/amd64
+          push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+
+      - name: Summary
+        env:
+          IMAGE: ${{ steps.keycloak.outputs.image }}
+          DIGEST: ${{ steps.keycloak.outputs.digest }}
+          BASE_IMAGE: ${{ steps.keycloak.outputs.base-image }}
+        run: |
+          printf '### Result\n\n| | |\n|---|---|\n| Image | `%s` |\n| Digest | `%s` |\n| Base | `%s` |\n' \
+            "$IMAGE" "$DIGEST" "$BASE_IMAGE" >> "$GITHUB_STEP_SUMMARY"
