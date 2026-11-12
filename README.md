@@ -26,6 +26,15 @@ docker run --rm -p 8080:8080 -v "$PWD/themes/homelab:/opt/keycloak/themes/homela
   quay.io/keycloak/keycloak:26.8.2 start-dev --spi-theme--cache-themes=false
 ```
 
+## Development
+
+`make help` lists the targets: `make tools` installs the toolchain pinned in
+`mise.toml`, `make hooks` installs the pre-commit hooks, `make check` runs
+them all (yamlfmt, shellcheck, actionlint, zizmor, gitleaks), `make scan` runs
+trivy and `make theme` starts Keycloak with the theme mounted. CI runs the same
+hooks (`ci.yml`), a trivy repo scan (`trivy.yml`) and scans and cosign-signs
+the pushed image (`build.yml`). Verification: see `SECURITY.md`.
+
 ## Build
 
 `.github/workflows/build.yml` builds on every pull request and publishes on

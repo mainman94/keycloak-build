@@ -1,0 +1,10 @@
+.idea
+.vscode
+trivy.sarif
+
+# Agent configuration is shared; anything else under .claude/ is local scratch.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/skills/
+!.claude/agents/

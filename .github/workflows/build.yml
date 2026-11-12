@@ -19,6 +19,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write # keyless cosign signing, no key to store
     steps:
       # Optimized image for the homelab Keycloak Operator CR
       # (multi-k8s-infra, eggenberg-talos-cluster-1): PostgreSQL, health and
@@ -44,11 +45,45 @@ jobs:
           themes-path: themes
           push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 
+      - name: Install cosign and trivy
+        if: steps.keycloak.outputs.digest != ''
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5
+        with:
+          install_args: cosign trivy
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Advisory: scans the pushed image by digest. Fixed CRITICAL/HIGH
+      # findings show as a failed step without blocking the publish.
+      - name: Scan image with trivy
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        env:
+          IMAGE: ${{ steps.keycloak.outputs.image }}
+          DIGEST: ${{ steps.keycloak.outputs.digest }}
+        run: trivy image --ignore-unfixed --severity CRITICAL,HIGH --scanners vuln "${IMAGE}@${DIGEST}"
+
+      # Signed by digest, keylessly: the signature carries this workflow's
+      # OIDC identity and lands in Rekor.
+      - name: Sign the pushed image
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          IMAGE: ${{ steps.keycloak.outputs.image }}
+          DIGEST: ${{ steps.keycloak.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
+
       - name: Summary
         env:
           IMAGE: ${{ steps.keycloak.outputs.image }}
           DIGEST: ${{ steps.keycloak.outputs.digest }}
           BASE_IMAGE: ${{ steps.keycloak.outputs.base-image }}
-        run: |
+        run: |-
+          # shellcheck disable=SC2016 # backticks are literal Markdown
           printf '### Result\n\n| | |\n|---|---|\n| Image | `%s` |\n| Digest | `%s` |\n| Base | `%s` |\n' \
             "$IMAGE" "$DIGEST" "$BASE_IMAGE" >> "$GITHUB_STEP_SUMMARY"
