@@ -3,6 +3,12 @@ name: build
 on:
   push:
     branches: [main]
+    # Only what ends up in the image: the themes, and this workflow itself
+    # (build options, builder pin, and with it the Keycloak version).
+    # Lint, docs and tooling changes do not publish a new image.
+    paths:
+      - themes/**
+      - .github/workflows/build.yml
   pull_request:
   workflow_dispatch:
 
