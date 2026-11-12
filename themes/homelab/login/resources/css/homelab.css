@@ -1,0 +1,26 @@
+/* Overrides on top of keycloak.v2's css/styles.css (loaded before this file). */
+:root {
+    --homelab-accent: #0f9d76;
+    --homelab-bg-from: #0b1f2a;
+    --homelab-bg-to: #123b37;
+    --keycloak-logo-url: url('../img/homelab-logo.svg');
+    --keycloak-logo-height: 56px;
+    --keycloak-logo-width: 260px;
+    --keycloak-card-top-color: var(--homelab-accent);
+}
+
+.login-pf body {
+    background: linear-gradient(135deg, var(--homelab-bg-from), var(--homelab-bg-to)) fixed;
+}
+
+/* Primary buttons and links in the accent colour. */
+.pf-v5-c-button.pf-m-primary {
+    --pf-v5-c-button--m-primary--BackgroundColor: var(--homelab-accent);
+    --pf-v5-c-button--m-primary--hover--BackgroundColor: #0b7d5e;
+    --pf-v5-c-button--m-primary--focus--BackgroundColor: #0b7d5e;
+    --pf-v5-c-button--m-primary--active--BackgroundColor: #0b7d5e;
+}
+
+.pf-v5-c-login a {
+    color: var(--homelab-accent);
+}

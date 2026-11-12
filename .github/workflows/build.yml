@@ -24,6 +24,13 @@ jobs:
       # (multi-k8s-infra, eggenberg-talos-cluster-1): PostgreSQL, health and
       # metrics are baked in; amd64 matches the Talos nodes. Pull requests only
       # build, pushes to main publish ghcr.io/mainman94/keycloak:<sha>.
+      # Checkout only feeds themes/ into the build; the action ships its own
+      # Dockerfile.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Build Keycloak image
         id: keycloak
         uses: FullStackS-GmbH/keycloak-image-builder@74e16713cec1fd2b47ec143b82172b2f31efe010 # main
@@ -34,6 +41,7 @@ jobs:
           health-enabled: 'true'
           metrics-enabled: 'true'
           platforms: linux/amd64
+          themes-path: themes
           push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 
       - name: Summary
