@@ -13,6 +13,24 @@
     background: linear-gradient(135deg, var(--homelab-bg-from), var(--homelab-bg-to)) fixed;
 }
 
+/* Logo on the header itself. keycloak.v2 only draws its logo through a
+   <div class="kc-logo-text"> inside the realm's displayNameHtml, which only
+   master has by default; a realm with just a display name renders plain
+   uppercase text. The text stays in the DOM for screen readers. */
+#kc-header-wrapper {
+    background: var(--keycloak-logo-url) no-repeat center / contain;
+    height: var(--keycloak-logo-height);
+    width: var(--keycloak-logo-width);
+    margin: 0 auto var(--pf-v5-global--spacer--2xl);
+    font-size: 0;
+    color: transparent !important;
+}
+
+/* Realms that still carry the default displayNameHtml would show it twice. */
+#kc-header-wrapper .kc-logo-text {
+    display: none;
+}
+
 /* Primary buttons and links in the accent colour. */
 .pf-v5-c-button.pf-m-primary {
     --pf-v5-c-button--m-primary--BackgroundColor: var(--homelab-accent);
