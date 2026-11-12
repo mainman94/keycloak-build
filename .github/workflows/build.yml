@@ -26,7 +26,7 @@ jobs:
       # build, pushes to main publish ghcr.io/mainman94/keycloak:<sha>.
       - name: Build Keycloak image
         id: keycloak
-        uses: FullStackS-GmbH/keycloak-image-builder@ebb48a60fd0a560d72eddaa95cfea7e7b6480d46 # feat/github-action
+        uses: FullStackS-GmbH/keycloak-image-builder@2d98ae7bdcce1c0e7d45383eb06f54cccab0d808 # main
         with:
           image-name: ghcr.io/${{ github.repository_owner }}/keycloak
           image-tag: ${{ github.sha }}
