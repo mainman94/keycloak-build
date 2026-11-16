@@ -25,7 +25,7 @@ jobs:
 
       # Versions come from mise.toml. trivy and cosign are left out here: the
       # lint run does not need them.
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5
+      - uses: jdx/mise-action@v5
         with:
           install_args: python prek actionlint shellcheck
 
